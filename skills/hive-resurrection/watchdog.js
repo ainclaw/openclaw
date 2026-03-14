@@ -239,10 +239,13 @@ function verifyAuth(timestamp, action, token) {
     return false;
   }
   const expected = createAuthToken(timestamp, action);
-  return crypto.timingSafeEqual(
-    Buffer.from(expected),
-    Buffer.from(token)
-  );
+  const expectedBuf = Buffer.from(expected);
+  const tokenBuf = Buffer.from(token);
+  // timingSafeEqual requires identical buffer lengths
+  if (expectedBuf.length !== tokenBuf.length) {
+    return false;
+  }
+  return crypto.timingSafeEqual(expectedBuf, tokenBuf);
 }
 
 // ============ TCP 指令服务器 ============
